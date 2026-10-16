@@ -1,7 +1,7 @@
 {
-  "name": "your-game-api",
+  "name": "bomb-defuse-api",
   "version": "1.0.0",
-  "description": "CHANGE_ME - one sentence about your game (CS 313 Software Engineering 1)",
+  "description": "Bomb Defuse is a timed multiple-choice. Players answer a question to earn a tool, then use the tool at the bomb and answer a second question before submitting a wire cut",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
@@ -19,7 +19,7 @@
   "engines": {
     "node": ">=22"
   },
-  "author": "CHANGE_ME - your full name",
+  "author": "Hazel Ann Oseo",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^18.0.7",
