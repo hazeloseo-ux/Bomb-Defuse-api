@@ -3,9 +3,9 @@
 const pkg = require('../../package.json');
 
 module.exports = {
-  slug: 'Bomb-Defuse',            // your group's game, lower case with hyphens, for example shelf-climb
-  name: 'Hazel AnnOseo',            // the name players will see
-  team: 'Team 9',            // your group's name and section, for example Bookworms (3-1)
+  slug: 'bomb-defuse',            // your group's game, lower case with hyphens, for example shelf-climb
+  name: 'Bomb Defuse',            // the name players will see
+  team: 'Team 9 - BSSC 3-01',            // your group's name and section, for example Bookworms (3-1)
   developer: 'hazeloseo-ux',       // YOUR GitHub username: this build is yours
   description: 'A timed multiple-choice game where players answer questions to earn tools and defuse a bomb.',     // one sentence about how the game is played
   min_players: 1,               // change to the limits your game is designed for
