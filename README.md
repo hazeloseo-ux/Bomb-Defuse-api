@@ -67,7 +67,7 @@ exploded) or who left before cutting all 5 wires did not complete the game.]
 
 ## Tables
 
-[| Table | What it stores |
+| Table | What it stores |
 |---|---|
 | users | Accounts (hosts and players): school_id, username, full_name, email, password_hash, role (HOST or PLAYER) |
 | question_sets | A host's set of questions: title, description, host_id |
@@ -75,7 +75,8 @@ exploded) or who left before cutting all 5 wires did not complete the game.]
 | game_sessions | One game: 6-digit join_code, status (WAITING, IN_PROGRESS, CLOSED), time_limit_seconds, started_at, ended_at |
 | players | One seat per account per game: nickname, score, defuse_progress (0 to 5), mistakes (0 to 3) |
 | answers | Each submitted answer: choice_index, correct, points |
-| defuse_steps | The 5 wire-cutting steps of each player: step_number, description, completed |]
+| defuse_steps | The 5 wire-cutting steps of each player: step_number, description, completed |
+
 ## Database scripts
 
 | Command | What it does |
