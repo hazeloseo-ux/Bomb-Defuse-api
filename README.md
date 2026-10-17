@@ -4,7 +4,7 @@ Backend API for **Bomb-Defuse**, a tournament game for the SorSU Bulan Campus li
 CS 313 Software Engineering 1, A.Y. 2026-2027.
 
 - Developer: Hazel Ann Oseo (hazeloseo-ux), BSCS 3-1 
-- Group and game concept: [Group 9]
+- Group and game concept: [Group 9, Bomb Defuse]
 
 This is my own build of my group's game concept. Every commit in this repository was made by me, with Git, on my own computer or in my own Codespace.
 
@@ -60,12 +60,22 @@ Base URL: `http://localhost:3001/api/v1`
 
 ## What "completed" means in my game
 
-[One or two sentences: when does a player count as having completed a game? For example: "A player completed the game when they answered every question, even if some answers were wrong or timed out."]
+[A player completed the game when they reached 5 successful wire cuts
+(players.defuse_progress = 5) before the timer ran out and before reaching
+3 mistakes (players.mistakes < 3). A player who reached 3 mistakes (the bomb
+exploded) or who left before cutting all 5 wires did not complete the game.]
 
 ## Tables
 
-[List your tables, one line each, in the order of your migrations.]
-
+[| Table | What it stores |
+|---|---|
+| users | Accounts (hosts and players): school_id, username, full_name, email, password_hash, role (HOST or PLAYER) |
+| question_sets | A host's set of questions: title, description, host_id |
+| questions | Multiple-choice questions (tool-earning or wire-cutting): text, choices A to D, correct_index |
+| game_sessions | One game: 6-digit join_code, status (WAITING, IN_PROGRESS, CLOSED), time_limit_seconds, started_at, ended_at |
+| players | One seat per account per game: nickname, score, defuse_progress (0 to 5), mistakes (0 to 3) |
+| answers | Each submitted answer: choice_index, correct, points |
+| defuse_steps | The 5 wire-cutting steps of each player: step_number, description, completed |]
 ## Database scripts
 
 | Command | What it does |
