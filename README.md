@@ -56,6 +56,7 @@ Base URL: `http://localhost:3001/api/v1`
 |---|---|---|---|
 | GET | /health | Is the API up and can it reach the database? | 200 (503 when the database is down) |
 | GET | /game-info | Slug, name, group, developer, description, player limits, version | 200 |
+| GET | /game-sessions | All game sessions, newest first | 200 (an empty array when none exist) |
 | GET | /results | Finished games, every player, and the top 3. Needs the `X-Hub-Key` header. Optional `?since=` | 200 (401 without the key) |
 
 ## What "completed" means in my game
