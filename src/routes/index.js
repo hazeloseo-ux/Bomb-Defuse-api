@@ -14,5 +14,5 @@
 
    // Your modules, one line each.
    router.use('/game-sessions', require('./game-sessions.routes'));
-
+   router.use('/question-sets', require('./question-set.routes'));
    module.exports = router;

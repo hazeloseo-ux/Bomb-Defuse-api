@@ -33,10 +33,10 @@ function errorHandler(err, req, res, next) {
   }
 
   // 4. Anything else is our bug. Full detail to the log, a fixed sentence to the client.
-  console.error(err);
-  return res.status(500).json({
-    error: { code: 'INTERNAL_ERROR', message: 'Something went wrong on the server.' },
-  });
+          console.error(err);
+   return res.status(500).json({
+     error: { code: 'INTERNAL_ERROR', message: 'Something went wrong on the server.' },
+   });
 }
 
 module.exports = errorHandler;
