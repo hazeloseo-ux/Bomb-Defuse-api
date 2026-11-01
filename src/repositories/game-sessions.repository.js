@@ -1,15 +1,28 @@
-const { QueryTypes } = require('sequelize');
-const { sequelize } = require('../models');
+// The only file that queries game_sessions. No rules, no status codes.
+const { GameSession } = require('../models');
 
-async function findAll() {
-  const sql = `
-    SELECT session_id, host_id, question_set_id, join_code, status,
-           time_limit_seconds, started_at, ended_at, created_at
-      FROM game_sessions
-     ORDER BY created_at DESC, session_id DESC
-  `;
-
-  return sequelize.query(sql, { type: QueryTypes.SELECT });
+function findAllByHost(hostId) {
+  return GameSession.findAll({
+    where: { host_id: hostId },
+    order: [['session_id', 'DESC']],
+  });
 }
 
-module.exports = { findAll };
+function findByCode(code) {
+  return GameSession.findOne({ where: { join_code: code } }); // a row, or null
+}
+
+async function codeExists(code) {
+  const count = await GameSession.count({ where: { join_code: code } });
+  return count > 0;
+}
+
+function create(data) {
+  return GameSession.create(data);
+}
+
+function update(session, changes) {
+  return session.update(changes);
+}
+
+module.exports = { findAllByHost, findByCode, codeExists, create, update };

@@ -48,16 +48,58 @@ npm run dev
 | DB_PASSWORD | (your own) | Database password. Never commit this. |
 | HUB_API_KEY | dev-hub-key | Key the Library Game Hub sends to read results. The library gives the real one at deployment. |
 
-## Endpoints (Hub Contract v1.2)
+## Endpoints
 
 Base URL: `http://localhost:3001/api/v1`
 
-| Method | Path | Purpose | Success |
-|---|---|---|---|
-| GET | /health | Is the API up and can it reach the database? | 200 (503 when the database is down) |
-| GET | /game-info | Slug, name, group, developer, description, player limits, version | 200 |
-| GET | /game-sessions | All game sessions, newest first | 200 (an empty array when none exist) |
-| GET | /results | Finished games, every player, and the top 3. Needs the `X-Hub-Key` header. Optional `?since=` | 200 (401 without the key) |
+Every error uses one shape: `{ "error": { "code": "...", "message": "..." } }`. A request that fails validation also carries `details`, a list of every problem.
+
+Until Week 12 the caller is named by the `X-Demo-User` header (a school ID from the seed data). This is a stand-in, not security. The Library Game Hub sends `X-Hub-Key` instead.
+
+### Hub Contract v1.2
+
+| Method | Path | Who may call it | Purpose | Success |
+|---|---|---|---|---|
+| GET | /health | Anyone | Is the API up and can it reach the database? | 200 (503 when the database is down) |
+| GET | /game-info | Anyone | Slug, name, group, developer, description, player limits, version | 200 |
+| GET | /results | The Hub, with `X-Hub-Key` | Closed games, every player, and the top 3. Optional `?since=` | 200 (401 without the key) |
+
+### Question sets (hosts only, and only the owner)
+
+| Method | Path | Purpose | Success | Can fail with |
+|---|---|---|---|---|
+| GET | /question-sets | List my question sets | 200 | 401, 403 |
+| POST | /question-sets | Create one. The owner is always the caller | 201 | 400, 401, 403 |
+| GET | /question-sets/{id} | Read one | 200 | 400, 403, 404 |
+| PATCH | /question-sets/{id} | Change title or description | 200 | 400, 403, 404 |
+| DELETE | /question-sets/{id} | Delete one | 204 | 400, 403, 404, 409 QUESTION_SET_IN_USE |
+
+### Game sessions and players
+
+| Method | Path | Who may call it | Purpose | Success | Can fail with |
+|---|---|---|---|---|---|
+| GET | /game-sessions | HOST | List my games, newest first | 200 | 401, 403 |
+| POST | /game-sessions | HOST | Start a game. The server makes the six-digit code | 201 | 400, 403, 404 |
+| GET | /game-sessions/{code} | Anyone | Read a game by its code | 200 | 400, 404 |
+| PATCH | /game-sessions/{code} | HOST who owns the game | Move the status to IN_PROGRESS or CLOSED | 200 | 400, 403, 404, 409 INVALID_STATUS_CHANGE |
+| POST | /game-sessions/{code}/players | Any known account | Join a game, or rejoin it | 201 new seat, 200 same seat | 400, 401, 404, 409 |
+| GET | /game-sessions/{code}/players | Anyone | List the players and their scores | 200 | 400, 404 |
+
+A game moves forward only: WAITING to IN_PROGRESS to CLOSED, or WAITING straight to CLOSED. Closing a game makes it appear in `/results`.
+
+### Joining a game: the questions, in this order
+
+1. Is the account known? If not, 401 AUTH_REQUIRED.
+2. Is the nickname 2 to 50 characters? If not, 400 VALIDATION_FAILED.
+3. Does a game with this code exist? If not, 404 SESSION_NOT_FOUND.
+4. Does this account already have a seat here? Then 200 with the same seat and score (rejoin).
+5. Does this account have a seat in another game that is IN_PROGRESS? Then 409 ALREADY_IN_GAME (one game at a time).
+6. Is the game still WAITING? If not, 409 SESSION_NOT_JOINABLE, or SESSION_ENDED when it is CLOSED.
+7. Is the nickname free? The database decides, so two requests at the same instant cannot both win. If not, 409 NICKNAME_TAKEN.
+
+### Testing
+
+The Postman collection is in `postman/bomb-defuse-week11.postman_collection.json`. It has 40 requests with tests. Test accounts (X-Demo-User): host `2099-0001`, second host `2099-0007`, player `2099-0002`, a player not seated anywhere `2099-0006`. Run `npm run db:reset` before running the collection.
 
 ## What "completed" means in my game
 
