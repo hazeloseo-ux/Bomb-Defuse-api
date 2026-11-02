@@ -4,7 +4,7 @@ Backend API for **Bomb-Defuse**, a tournament game for the SorSU Bulan Campus li
 CS 313 Software Engineering 1, A.Y. 2026-2027.
 
 - Developer: Hazel Ann Oseo (hazeloseo-ux), BSCS 3-1 
-- Group and game concept: [Group 9, Bomb Defuse]
+- Group and game concept: Group 9, Bomb Defuse
 
 This is my own build of my group's game concept. Every commit in this repository was made by me, with Git, on my own computer or in my own Codespace.
 
@@ -20,8 +20,8 @@ This is my own build of my group's game concept. Every commit in this repository
 ## Setup
 
 ```
-git clone [https://github.com/hazeloseo-ux/Bomb-Defuse-api.git]
-cd [Bomb-Defuse-api]
+git clone https://github.com/hazeloseo-ux/Bomb-Defuse-api.git
+cd Bomb-Defuse-api
 npm install
 ```
 
@@ -103,10 +103,10 @@ The Postman collection is in `postman/bomb-defuse-week11.postman_collection.json
 
 ## What "completed" means in my game
 
-[A player completed the game when they reached 5 successful wire cuts
+A player completed the game when they reached 5 successful wire cuts
 (players.defuse_progress = 5) before the timer ran out and before reaching
 3 mistakes (players.mistakes < 3). A player who reached 3 mistakes (the bomb
-exploded) or who left before cutting all 5 wires did not complete the game.]
+exploded) or who left before cutting all 5 wires did not complete the game.
 
 ## Tables
 

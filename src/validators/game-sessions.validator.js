@@ -1,14 +1,16 @@
 // What a well-formed request looks like. Never asks the database.
 const { body, param } = require('express-validator');
 
+// Six digits, and the first digit is 1 to 9 (a code never starts with 0).
 const codeParam = param('code')
-  .matches(/^[0-9]{6}$/)
-  .withMessage('the join code must be six digits');
+  .matches(/^[1-9][0-9]{5}$/)
+  .withMessage('the join code must be six digits and not start with 0');
 
+// 2147483647 is the largest value a 32-bit integer column can hold.
 const questionSetId = body('question_set_id')
   .exists().withMessage('question_set_id is required')
   .bail()
-  .isInt({ min: 1 }).withMessage('question_set_id must be a positive whole number')
+  .isInt({ min: 1, max: 2147483647 }).withMessage('question_set_id must be a positive whole number')
   .toInt();
 
 const timeLimit = body('time_limit_seconds')
