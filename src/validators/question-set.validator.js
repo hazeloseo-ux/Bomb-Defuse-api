@@ -23,12 +23,24 @@ const descriptionRule = () =>
     .isLength({ max: 500 })
     .withMessage('description must be at most 500 characters long');
 
+// The largest value a 32-bit integer column can hold.
 const idParam = param('id')
-  .isInt({ min: 1 })
+  .isInt({ min: 1, max: 2147483647 })
   .withMessage('id must be a positive whole number')
   .toInt();
 
+// A PATCH must change at least one field.
+const atLeastOne = body().custom((_, { req }) => {
+  const b = req.body;
+  const hasTitle = b && typeof b === 'object' && b.title !== undefined;
+  const hasDescription = b && typeof b === 'object' && b.description !== undefined;
+  if (!hasTitle && !hasDescription) {
+    throw new Error('send at least one field to change: title or description');
+  }
+  return true;
+});
+
 const createRules = [titleRule({ required: true }), descriptionRule()];
-const updateRules = [idParam, titleRule({ required: false }), descriptionRule()];
+const updateRules = [idParam, atLeastOne, titleRule({ required: false }), descriptionRule()];
 
 module.exports = { createRules, updateRules, idParam };
