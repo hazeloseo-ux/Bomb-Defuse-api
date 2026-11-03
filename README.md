@@ -99,7 +99,7 @@ A game moves forward only: WAITING to IN_PROGRESS to CLOSED, or WAITING straight
 
 ### Testing
 
-The Postman collection is in `postman/bomb-defuse-week11.postman_collection.json`. It has 40 requests with tests. Test accounts (X-Demo-User): host `2099-0001`, second host `2099-0007`, player `2099-0002`, a player not seated anywhere `2099-0006`. Run `npm run db:reset` before running the collection.
+The Postman collection is in `postman/bomb-defuse-week11.postman_collection.json`. It has 50 requests with tests. Test accounts (X-Demo-User): host `2099-0001`, second host `2099-0007`, player `2099-0002`, a player not seated anywhere `2099-0006`. Run `npm run db:reset` before running the collection.
 
 ## What "completed" means in my game
 
