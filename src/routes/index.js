@@ -11,8 +11,13 @@
 
    // From here on, req.user says who is calling (or null).
    router.use(currentUser);
+   router.use('/auth', require('./auth.routes'));
 
-   // Your modules, one line each.
-   router.use('/game-sessions', require('./game-sessions.routes'));
-   router.use('/question-sets', require('./question-set.routes'));
-   module.exports = router;
+// From here on, req.user says who is calling (or null).
+router.use(currentUser);
+
+// Your modules, one line each.
+router.use('/auth', require('./auth.routes'));
+router.use('/game-sessions', require('./game-sessions.routes'));
+router.use('/question-sets', require('./question-set.routes'));
+module.exports = router;
