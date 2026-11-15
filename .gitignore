@@ -11,3 +11,6 @@ Thumbs.db
 
 # logs
 *.log
+coverage/
+uploads/*/*
+!uploads/*/.gitkeep
