@@ -101,6 +101,21 @@ A game moves forward only: WAITING to IN_PROGRESS to CLOSED, or WAITING straight
 
 The Postman collection is in `postman/bomb-defuse-week11.postman_collection.json`. It has 50 requests with tests. Test accounts (X-Demo-User): host `2099-0001`, second host `2099-0007`, player `2099-0002`, a player not seated anywhere `2099-0006`. Run `npm run db:reset` before running the collection.
 
+## Demo accounts
+
+These accounts exist on my own computer only, after `npm run db:reset`. They do not exist on the live API, because seeders do not run there.
+All seeded accounts share one demo password: `oseo2525`
+
+| School ID | Username | Role |
+|---|---|---|
+| 2099-0001 | teacher_host | HOST |
+| 2099-0002 | rina | PLAYER |
+| 2099-0003 | dale | PLAYER |
+| 2099-0004 | pao | PLAYER |
+| 2099-0005 | lito | PLAYER |
+| 2099-0006 | mara | PLAYER |
+| 2099-0007 | second_host | HOST |
+
 ## What "completed" means in my game
 
 A player completed the game when they reached 5 successful wire cuts
