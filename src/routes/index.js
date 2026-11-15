@@ -18,6 +18,9 @@ router.use(currentUser);
 
 // Your modules, one line each.
 router.use('/auth', require('./auth.routes'));
+router.use('/auth', require('./auth.routes'));
+router.use('/users', require('./user.routes'));
+router.use('/game-sessions', require('./game-sessions.routes'));
 router.use('/game-sessions', require('./game-sessions.routes'));
 router.use('/question-sets', require('./question-set.routes'));
 module.exports = router;
