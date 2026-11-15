@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) =>
     {
       user_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       school_id: { type: DataTypes.STRING(20), allowNull: false, unique: true },
+      username: { type: DataTypes.STRING(50), allowNull: false, unique: true },
       full_name: { type: DataTypes.STRING(100), allowNull: false },
       email: { type: DataTypes.STRING(255), allowNull: false, unique: true },
       role: { type: DataTypes.STRING(20), allowNull: false, defaultValue: 'PLAYER' },
@@ -16,6 +17,13 @@ module.exports = (sequelize, DataTypes) =>
       timestamps: true,
       createdAt: 'created_at',
       updatedAt: false,
+      // The database requires a username, but register and create-admin only send
+      // a school ID. Until a player picks a username, it is the school ID.
+      hooks: {
+        beforeValidate(user) {
+          if (!user.username) user.username = user.school_id;
+        },
+      },
       // Week 12: the hash never leaves the database by accident.
       // Only the login query asks for it, with User.scope('withPassword').
       defaultScope: { attributes: { exclude: ['password_hash'] } },
