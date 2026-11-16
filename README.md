@@ -99,7 +99,7 @@ A game moves forward only: WAITING to IN_PROGRESS to CLOSED, or WAITING straight
 
 ### Testing
 
-The Postman collection is in `postman/bomb-defuse-week11.postman_collection.json`. It has 50 requests with tests. Test accounts (X-Demo-User): host `2099-0001`, second host `2099-0007`, player `2099-0002`, a player not seated anywhere `2099-0006`. Run `npm run db:reset` before running the collection.
+The Postman collection is in `postman/bomb-defuse.postman_collection.json`. It has 78 requests with tests. Run the folder "Log in (run this folder first)" first: it logs in as each demo account and saves the tokens. Demo accounts (password in "Demo accounts" below): host `2099-0001`, second host `2099-0007`, players `2099-0002` and `2099-0005`, a player not seated anywhere `2099-0006`, admin `2099-0000`. Run `npm run db:reset` before running the collection.
 
 ## Demo accounts
 
