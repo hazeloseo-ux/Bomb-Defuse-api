@@ -54,7 +54,7 @@ Base URL: `http://localhost:3001/api/v1`
 
 Every error uses one shape: `{ "error": { "code": "...", "message": "..." } }`. A request that fails validation also carries `details`, a list of every problem.
 
-Until Week 12 the caller is named by the `X-Demo-User` header (a school ID from the seed data). This is a stand-in, not security. The Library Game Hub sends `X-Hub-Key` instead.
+Callers are identified by a login token. Register with `POST /auth/register`, log in with `POST /auth/login`, and send `Authorization: Bearer <token>` on every other request. Passwords are stored only as bcrypt hashes. The Library Game Hub sends `X-Hub-Key` instead.
 
 ### Hub Contract v1.2
 
