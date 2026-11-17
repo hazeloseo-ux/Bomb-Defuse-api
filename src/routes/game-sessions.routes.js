@@ -10,7 +10,7 @@ const router = Router();
 
 router.get('/', requireUser('HOST'), sessionController.list);
 router.post('/', requireUser('HOST'), rules.createRules, validate, sessionController.create);
-router.get('/:code', rules.codeParam, validate, sessionController.get);
+router.get('/:code', requireUser(), rules.codeParam, validate, sessionController.get);
 router.patch(
   '/:code',
   requireUser('HOST'),
@@ -21,6 +21,6 @@ router.patch(
 
 // Players are a part of a game, so their URLs sit under it.
 router.post('/:code/players', requireUser(), rules.joinRules, validate, playerController.join);
-router.get('/:code/players', rules.codeParam, validate, playerController.list);
+router.get('/:code/players', requireUser(), rules.codeParam, validate, playerController.list);
 
 module.exports = router;

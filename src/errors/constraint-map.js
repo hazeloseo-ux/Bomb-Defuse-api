@@ -20,4 +20,20 @@ module.exports = {
     code: 'QUESTION_SET_IN_USE',
     message: 'This question set was used in a game and cannot be deleted.',
   },
+  users_school_id_key: {
+    status: 409,
+    code: 'SCHOOL_ID_TAKEN',
+    message: 'That school ID already has an account.',
+  },
+  users_username_key: {
+    status: 409,
+    code: 'SCHOOL_ID_TAKEN',
+    message: 'That school ID already has an account.',
+  },
+  users_email_key: {
+    status: 409,
+    code: 'EMAIL_TAKEN',
+    message: 'That email already has an account.',
+  },
 };
+  

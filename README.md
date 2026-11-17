@@ -54,7 +54,7 @@ Base URL: `http://localhost:3001/api/v1`
 
 Every error uses one shape: `{ "error": { "code": "...", "message": "..." } }`. A request that fails validation also carries `details`, a list of every problem.
 
-Until Week 12 the caller is named by the `X-Demo-User` header (a school ID from the seed data). This is a stand-in, not security. The Library Game Hub sends `X-Hub-Key` instead.
+Callers are identified by a login token. Register with `POST /auth/register`, log in with `POST /auth/login`, and send `Authorization: Bearer <token>` on every other request. Passwords are stored only as bcrypt hashes. The Library Game Hub sends `X-Hub-Key` instead.
 
 ### Hub Contract v1.2
 
@@ -99,7 +99,22 @@ A game moves forward only: WAITING to IN_PROGRESS to CLOSED, or WAITING straight
 
 ### Testing
 
-The Postman collection is in `postman/bomb-defuse-week11.postman_collection.json`. It has 50 requests with tests. Test accounts (X-Demo-User): host `2099-0001`, second host `2099-0007`, player `2099-0002`, a player not seated anywhere `2099-0006`. Run `npm run db:reset` before running the collection.
+The Postman collection is in `postman/bomb-defuse.postman_collection.json`. It has 78 requests with tests. Run the folder "Log in (run this folder first)" first: it logs in as each demo account and saves the tokens. Demo accounts (password in "Demo accounts" below): host `2099-0001`, second host `2099-0007`, players `2099-0002` and `2099-0005`, a player not seated anywhere `2099-0006`, admin `2099-0000`. Run `npm run db:reset` before running the collection.
+
+## Demo accounts
+
+These accounts exist on my own computer only, after `npm run db:reset`. They do not exist on the live API, because seeders do not run there.
+All seeded accounts share one demo password: `oseo2525`
+
+| School ID | Username | Role |
+|---|---|---|
+| 2099-0001 | teacher_host | HOST |
+| 2099-0002 | rina | PLAYER |
+| 2099-0003 | dale | PLAYER |
+| 2099-0004 | pao | PLAYER |
+| 2099-0005 | lito | PLAYER |
+| 2099-0006 | mara | PLAYER |
+| 2099-0007 | second_host | HOST |
 
 ## What "completed" means in my game
 
