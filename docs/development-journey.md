@@ -8,7 +8,7 @@ One entry per milestone, written the week you did it. Newest at the bottom.
 - Dates worked: Nov 15 to Nov 17, 2026 · Time spent: about 6 hours (2 hours a day for 3 days).
 - Goal: Let people register and log in with a password, and protect routes with a token.
 - What I built: /auth/register, /auth/login, /auth/me, and admin-only /users and /users/:id/role. Passwords are bcrypt hashes, login returns a JWT, and a new account is always a PLAYER. The Postman collection has 78 requests.
-- Evidence: PR link added below · f970ef0 · 3acea4d · 7be26b6
+- Evidence: https://github.com/hazeloseo-ux/Bomb-Defuse-api/pull/4 · f970ef0 · 3acea4d · 7be26b6
 - Problem I hit: For a long time I did not understand JWT_SECRET and the .env file. I pasted the wrong things into .env, and one line became "JWT_SECRET=JWT_SECRET=".
 - How I solved it: I learned that .env holds the secret that signs tokens and it must never be committed. I removed the bad lines, added a random 64-character key with a small Node command, and checked its length was 64.
 - Decision I made and why: A wrong password and an unknown school ID both answer the same 401. A user is not told which part was wrong, but nobody can guess which school IDs have accounts.
