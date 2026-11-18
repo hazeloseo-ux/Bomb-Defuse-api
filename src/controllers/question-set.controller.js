@@ -2,28 +2,32 @@
 const { matchedData } = require('express-validator');
 const questionSetService = require('../services/question-set.service');
 const { envelope } = require('../utils/paginate');
+const { toJson: questionToJson } = require('./question.controller');
 
 // What a client is allowed to see of a question set.
-function toJson(questionSet) {
-  return {
+function toJson(questionSet, { withQuestions = false } = {}) {
+  const json = {
     id: questionSet.question_set_id,
     title: questionSet.title,
     description: questionSet.description,
     host_id: questionSet.host_id,
     created_at: questionSet.created_at,
   };
+  if (withQuestions) json.questions = questionSet.questions.map(questionToJson);
+  return json;
 }
 
 async function list(req, res) {
   const paging = matchedData(req, { locations: ['query'] }); // page, limit, q, sort, order
   const { rows, count } = await questionSetService.list(req.user, paging);
-  res.status(200).json(envelope(rows.map(toJson), count, paging));
+  res.status(200).json(envelope(rows.map((row) => toJson(row)), count, paging));
 }
 
 async function get(req, res) {
-  const { id } = matchedData(req);
-  const questionSet = await questionSetService.get(id, req.user);
-  res.status(200).json(toJson(questionSet));
+  const { id, include } = matchedData(req);
+  const withQuestions = include === 'questions';
+  const questionSet = await questionSetService.get(id, req.user, { withQuestions });
+  res.status(200).json(toJson(questionSet, { withQuestions }));
 }
 
 async function create(req, res) {

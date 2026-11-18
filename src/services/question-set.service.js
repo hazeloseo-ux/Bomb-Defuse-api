@@ -2,8 +2,8 @@
 const questionSetRepository = require('../repositories/question-set.repository');
 const { notFound, forbidden } = require('../errors/app-error');
 
-async function findOrFail(id) {
-  const questionSet = await questionSetRepository.findById(id);
+async function findOrFail(id, options) {
+  const questionSet = await questionSetRepository.findById(id, options);
   if (!questionSet) {
     throw notFound('QUESTION_SET_NOT_FOUND', `No question set has the id ${id}.`);
   }
@@ -21,8 +21,8 @@ function list(user, paging) {
   return questionSetRepository.findAndCountByHost(user.user_id, paging);
 }
 
-async function get(id, user) {
-  const questionSet = await findOrFail(id);
+async function get(id, user, options) {
+  const questionSet = await findOrFail(id, options);
   assertOwner(questionSet, user);
   return questionSet;
 }

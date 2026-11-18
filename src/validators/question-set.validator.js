@@ -57,5 +57,12 @@ const listRules = [
   ...sortRules(['title', 'created_at', 'question_set_id']),
   searchRule,
 ];
+// ?include=questions loads the set with its questions in one query.
+const includeRule = query('include')
+  .optional()
+  .isIn(['questions'])
+  .withMessage('include must be: questions');
 
-module.exports = { createRules, updateRules, idParam, listRules };
+const getRules = [idParam, includeRule];
+
+module.exports = { createRules, updateRules, idParam, listRules, getRules };

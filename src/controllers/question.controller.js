@@ -41,4 +41,4 @@ async function remove(req, res) {
   res.status(204).end();
 }
 
-module.exports = { list, create, update, remove };
+module.exports = { list, create, update, remove, toJson };

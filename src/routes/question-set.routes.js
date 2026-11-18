@@ -13,7 +13,7 @@ router.use(requireUser('HOST'));
 
 router.get('/', rules.listRules, validate, controller.list);
 router.post('/', rules.createRules, validate, controller.create);
-router.get('/:id', rules.idParam, validate, controller.get);
+router.get('/:id', rules.getRules, validate, controller.get);
 router.patch('/:id', rules.updateRules, validate, controller.update);
 router.delete('/:id', rules.idParam, validate, controller.remove);
 // Questions live under their set.
