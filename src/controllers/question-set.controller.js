@@ -1,6 +1,7 @@
 // Three steps: read validated input, call one service, choose the status.
 const { matchedData } = require('express-validator');
 const questionSetService = require('../services/question-set.service');
+const { envelope } = require('../utils/paginate');
 
 // What a client is allowed to see of a question set.
 function toJson(questionSet) {
@@ -14,8 +15,9 @@ function toJson(questionSet) {
 }
 
 async function list(req, res) {
-  const sets = await questionSetService.list(req.user);
-  res.status(200).json(sets.map(toJson));
+  const paging = matchedData(req, { locations: ['query'] }); // page, limit, q, sort, order
+  const { rows, count } = await questionSetService.list(req.user, paging);
+  res.status(200).json(envelope(rows.map(toJson), count, paging));
 }
 
 async function get(req, res) {

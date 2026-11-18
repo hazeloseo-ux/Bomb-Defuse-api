@@ -16,8 +16,9 @@ function assertOwner(questionSet, user) {
   }
 }
 
-function list(user) {
-  return questionSetRepository.findAllByHost(user.user_id);
+// The caller only ever sees their own sets. paging holds page, limit, q, sort, order.
+function list(user, paging) {
+  return questionSetRepository.findAndCountByHost(user.user_id, paging);
 }
 
 async function get(id, user) {
