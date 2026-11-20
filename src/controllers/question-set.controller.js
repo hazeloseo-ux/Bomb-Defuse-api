@@ -12,6 +12,7 @@ function toJson(questionSet, { withQuestions = false } = {}) {
     description: questionSet.description,
     host_id: questionSet.host_id,
     created_at: questionSet.created_at,
+        cover_url: questionSet.cover_filename ? `/uploads/covers/${questionSet.cover_filename}` : null,
   };
   if (withQuestions) json.questions = questionSet.questions.map(questionToJson);
   return json;
@@ -47,5 +48,9 @@ async function remove(req, res) {
   await questionSetService.remove(id, req.user);
   res.status(204).end();
 }
-
-module.exports = { list, get, create, update, remove };
+async function uploadCover(req, res) {
+  const { id } = matchedData(req);
+  const questionSet = await questionSetService.setCover(id, req.file, req.user);
+  res.status(200).json(toJson(questionSet));
+}
+module.exports = { list, get, create, update, remove, uploadCover };

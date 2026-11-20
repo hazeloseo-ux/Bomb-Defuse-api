@@ -1,4 +1,5 @@
 // One line per endpoint: verb + path, rules, validate, controller.
+const uploadCover = require('../middlewares/upload-cover');
 const { Router } = require('express');
 const requireUser = require('../middlewares/require-user');
 const validate = require('../middlewares/validate');
@@ -21,4 +22,5 @@ router.get('/:id/questions', questionRules.listRules, validate, questionControll
 router.post('/:id/questions', questionRules.createRules, validate, questionController.create);
 router.patch('/:id/questions/:questionId', questionRules.updateRules, validate, questionController.update);
 router.delete('/:id/questions/:questionId', questionRules.removeRules, validate, questionController.remove);
+router.put('/:id/cover', rules.idParam, validate, uploadCover, controller.uploadCover);
 module.exports = router;

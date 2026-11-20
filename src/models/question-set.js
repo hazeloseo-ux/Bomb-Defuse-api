@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) =>
       host_id: { type: DataTypes.INTEGER, allowNull: false },
       title: { type: DataTypes.STRING(100), allowNull: false },
       description: { type: DataTypes.TEXT, allowNull: true },
+      cover_filename: { type: DataTypes.STRING(255), allowNull: true },
     },
     { tableName: 'question_sets', timestamps: true, createdAt: 'created_at', updatedAt: false }
   );
