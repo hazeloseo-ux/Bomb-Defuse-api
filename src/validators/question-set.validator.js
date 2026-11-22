@@ -1,5 +1,6 @@
 // What a well-formed request looks like. Never asks the database.
-const { body, param } = require('express-validator');
+const { body, param, query } = require('express-validator');
+const { pageRules, sortRules } = require('./list.validator');
 
 function titleRule({ required }) {
   const chain = body('title');
@@ -42,5 +43,26 @@ const atLeastOne = body().custom((_, { req }) => {
 
 const createRules = [titleRule({ required: true }), descriptionRule()];
 const updateRules = [idParam, atLeastOne, titleRule({ required: false }), descriptionRule()];
+// ?q= is a search word. It is bound as a value later, never glued into SQL.
+const searchRule = query('q')
+  .optional()
+  .isString().withMessage('q must be text')
+  .bail()
+  .trim()
+  .isLength({ max: 100 })
+  .withMessage('q must be at most 100 characters long');
 
-module.exports = { createRules, updateRules, idParam };
+const listRules = [
+  ...pageRules,
+  ...sortRules(['title', 'created_at', 'question_set_id']),
+  searchRule,
+];
+// ?include=questions loads the set with its questions in one query.
+const includeRule = query('include')
+  .optional()
+  .isIn(['questions'])
+  .withMessage('include must be: questions');
+
+const getRules = [idParam, includeRule];
+
+module.exports = { createRules, updateRules, idParam, listRules, getRules };

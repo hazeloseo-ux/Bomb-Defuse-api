@@ -1,27 +1,34 @@
 // Three steps: read validated input, call one service, choose the status.
 const { matchedData } = require('express-validator');
 const questionSetService = require('../services/question-set.service');
+const { envelope } = require('../utils/paginate');
+const { toJson: questionToJson } = require('./question.controller');
 
 // What a client is allowed to see of a question set.
-function toJson(questionSet) {
-  return {
+function toJson(questionSet, { withQuestions = false } = {}) {
+  const json = {
     id: questionSet.question_set_id,
     title: questionSet.title,
     description: questionSet.description,
     host_id: questionSet.host_id,
     created_at: questionSet.created_at,
+        cover_url: questionSet.cover_filename ? `/uploads/covers/${questionSet.cover_filename}` : null,
   };
+  if (withQuestions) json.questions = questionSet.questions.map(questionToJson);
+  return json;
 }
 
 async function list(req, res) {
-  const sets = await questionSetService.list(req.user);
-  res.status(200).json(sets.map(toJson));
+  const paging = matchedData(req, { locations: ['query'] }); // page, limit, q, sort, order
+  const { rows, count } = await questionSetService.list(req.user, paging);
+  res.status(200).json(envelope(rows.map((row) => toJson(row)), count, paging));
 }
 
 async function get(req, res) {
-  const { id } = matchedData(req);
-  const questionSet = await questionSetService.get(id, req.user);
-  res.status(200).json(toJson(questionSet));
+  const { id, include } = matchedData(req);
+  const withQuestions = include === 'questions';
+  const questionSet = await questionSetService.get(id, req.user, { withQuestions });
+  res.status(200).json(toJson(questionSet, { withQuestions }));
 }
 
 async function create(req, res) {
@@ -41,5 +48,9 @@ async function remove(req, res) {
   await questionSetService.remove(id, req.user);
   res.status(204).end();
 }
-
-module.exports = { list, get, create, update, remove };
+async function uploadCover(req, res) {
+  const { id } = matchedData(req);
+  const questionSet = await questionSetService.setCover(id, req.file, req.user);
+  res.status(200).json(toJson(questionSet));
+}
+module.exports = { list, get, create, update, remove, uploadCover };
