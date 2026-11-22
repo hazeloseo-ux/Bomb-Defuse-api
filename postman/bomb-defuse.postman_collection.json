@@ -83,6 +83,14 @@
     {
       "key": "failedLoginBody",
       "value": ""
+    },
+    {
+      "key": "qbSetId",
+      "value": ""
+    },
+    {
+      "key": "qbQuestionId",
+      "value": ""
     }
   ],
   "item": [
@@ -1282,7 +1290,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
-                  "pm.test(\"body is an array\", function () { pm.expect(pm.response.json()).to.be.an(\"array\"); });"
+                  "pm.test(\"body is { data, meta }\", function () { const b = pm.response.json(); pm.expect(b.data).to.be.an(\"array\"); pm.expect(b.meta).to.include.all.keys(\"page\", \"limit\", \"total\", \"pages\"); });"
                 ]
               }
             }
@@ -1960,6 +1968,704 @@
               "path": [
                 "question-sets",
                 "{{usedSetId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Question bank",
+      "item": [
+        {
+          "name": "QB-01 Paging - ?page=1&limit=1 - 200, one row, meta says limit 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"data has at most one row\", function () { pm.expect(body.data).to.be.an(\"array\"); pm.expect(body.data.length).to.be.at.most(1); });",
+                  "pm.test(\"meta has page, limit, total and pages\", function () { pm.expect(body.meta).to.include.all.keys(\"page\", \"limit\", \"total\", \"pages\"); pm.expect(body.meta.limit).to.eql(1); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/question-sets?page=1&limit=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "question-sets"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "QB-02 Search with no match - 200, an empty list is still 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"data is empty and total is 0\", function () { const b = pm.response.json(); pm.expect(b.data).to.eql([]); pm.expect(b.meta.total).to.eql(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/question-sets?q=zzzzzzzz",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "question-sets"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "zzzzzzzz"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "QB-03 Sort by a column that is not allowed - 400 VALIDATION_FAILED",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"error code is VALIDATION_FAILED\", function () { pm.expect(pm.response.json().error.code).to.eql(\"VALIDATION_FAILED\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/question-sets?sort=password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "question-sets"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "password"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "QB-04 Create a set for this folder - 201, id saved",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set(\"qbSetId\", pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/question-sets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "question-sets"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Question bank test set\",\n  \"description\": \"created by the Question bank folder\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "QB-05 Add a question - 201, four choices, id saved",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const q = pm.response.json();",
+                  "pm.test(\"four choices and one correct_index\", function () { pm.expect(q.choices).to.have.lengthOf(4); pm.expect(q.correct_index).to.eql(0); });",
+                  "pm.collectionVariables.set(\"qbQuestionId\", q.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/question-sets/{{qbSetId}}/questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "question-sets",
+                "{{qbSetId}}",
+                "questions"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_type\": \"TOOL\",\n  \"question_text\": \"Which tool cuts a wire safely?\",\n  \"choices\": [\n    \"Pliers\",\n    \"Spoon\",\n    \"Hammer\",\n    \"Tape\"\n  ],\n  \"correct_index\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "QB-06 Two correct choices - 400 VALIDATION_FAILED",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"error code is VALIDATION_FAILED\", function () { pm.expect(pm.response.json().error.code).to.eql(\"VALIDATION_FAILED\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/question-sets/{{qbSetId}}/questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "question-sets",
+                "{{qbSetId}}",
+                "questions"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_type\": \"TOOL\",\n  \"question_text\": \"Which tool cuts a wire safely?\",\n  \"choices\": [\n    \"Pliers\",\n    \"Spoon\",\n    \"Hammer\",\n    \"Tape\"\n  ],\n  \"correct_index\": [\n    0,\n    1\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "QB-07 A player adds a question - 403 FORBIDDEN",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"error code is FORBIDDEN\", function () { pm.expect(pm.response.json().error.code).to.eql(\"FORBIDDEN\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/question-sets/{{qbSetId}}/questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "question-sets",
+                "{{qbSetId}}",
+                "questions"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_type\": \"TOOL\",\n  \"question_text\": \"Which tool cuts a wire safely?\",\n  \"choices\": [\n    \"Pliers\",\n    \"Spoon\",\n    \"Hammer\",\n    \"Tape\"\n  ],\n  \"correct_index\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "QB-08 Another host adds a question to my set - 403 FORBIDDEN",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"error code is FORBIDDEN\", function () { pm.expect(pm.response.json().error.code).to.eql(\"FORBIDDEN\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{otherHostToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/question-sets/{{qbSetId}}/questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "question-sets",
+                "{{qbSetId}}",
+                "questions"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_type\": \"TOOL\",\n  \"question_text\": \"Which tool cuts a wire safely?\",\n  \"choices\": [\n    \"Pliers\",\n    \"Spoon\",\n    \"Hammer\",\n    \"Tape\"\n  ],\n  \"correct_index\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "QB-09 List the questions of the set - 200, data and meta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"one question in the envelope\", function () { const b = pm.response.json(); pm.expect(b.data).to.have.lengthOf(1); pm.expect(b.meta.total).to.eql(1); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/question-sets/{{qbSetId}}/questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "question-sets",
+                "{{qbSetId}}",
+                "questions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "QB-10 Read the set with ?include=questions - 200, questions inside",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"the set carries its questions\", function () { const s = pm.response.json(); pm.expect(s.questions).to.be.an(\"array\"); pm.expect(s.questions.length).to.be.at.least(1); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/question-sets/{{qbSetId}}?include=questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "question-sets",
+                "{{qbSetId}}"
+              ],
+              "query": [
+                {
+                  "key": "include",
+                  "value": "questions"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "QB-11 Edit a question - 200, new correct_index",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"correct_index changed to 2\", function () { pm.expect(pm.response.json().correct_index).to.eql(2); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/question-sets/{{qbSetId}}/questions/{{qbQuestionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "question-sets",
+                "{{qbSetId}}",
+                "questions",
+                "{{qbQuestionId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correct_index\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "QB-12 Add a question to a set already used by a game - 409 QUESTION_SET_IN_USE",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"error code is QUESTION_SET_IN_USE\", function () { pm.expect(pm.response.json().error.code).to.eql(\"QUESTION_SET_IN_USE\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/question-sets/{{usedSetId}}/questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "question-sets",
+                "{{usedSetId}}",
+                "questions"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_type\": \"TOOL\",\n  \"question_text\": \"Which tool cuts a wire safely?\",\n  \"choices\": [\n    \"Pliers\",\n    \"Spoon\",\n    \"Hammer\",\n    \"Tape\"\n  ],\n  \"correct_index\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "QB-13 Delete the question - 204",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/question-sets/{{qbSetId}}/questions/{{qbQuestionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "question-sets",
+                "{{qbSetId}}",
+                "questions",
+                "{{qbQuestionId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "QB-14 Good upload - cover.png - 200, cover_url set",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"cover_url points into /uploads/covers\", function () { pm.expect(pm.response.json().cover_url).to.match(/^\\/uploads\\/covers\\/.+\\.png$/); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/question-sets/{{qbSetId}}/cover",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "question-sets",
+                "{{qbSetId}}",
+                "cover"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "cover",
+                  "type": "file",
+                  "src": "postman/fixtures/cover.png"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "QB-15 Wrong type - a text file - 400 INVALID_FILE_TYPE",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"error code is INVALID_FILE_TYPE\", function () { pm.expect(pm.response.json().error.code).to.eql(\"INVALID_FILE_TYPE\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/question-sets/{{qbSetId}}/cover",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "question-sets",
+                "{{qbSetId}}",
+                "cover"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "cover",
+                  "type": "file",
+                  "src": "postman/fixtures/not-a-picture.txt"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "QB-17 Clean up - delete the folder's set - 204",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/question-sets/{{qbSetId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "question-sets",
+                "{{qbSetId}}"
               ]
             }
           }
