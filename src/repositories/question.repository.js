@@ -36,5 +36,8 @@ function remove(question, options = {}) {
 function countGamesUsingSet(questionSetId, options = {}) {
   return GameSession.count({ where: { question_set_id: questionSetId }, ...options });
 }
-
-module.exports = { findAndCountBySet, findInSet, create, update, remove, countGamesUsingSet };
+// How many questions a set has (the last position of a game).
+function countBySet(questionSetId, options = {}) {
+  return Question.count({ where: { question_set_id: questionSetId }, ...options });
+}
+module.exports = { findAndCountBySet, findInSet, create, update, remove, countGamesUsingSet, countBySet };

@@ -10,6 +10,8 @@ module.exports = (sequelize, DataTypes) =>
       time_limit_seconds: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 300 },
       started_at: { type: DataTypes.DATE, allowNull: true },
       ended_at: { type: DataTypes.DATE, allowNull: true },
+      current_position: { type: DataTypes.INTEGER, allowNull: true },
+      question_started_at: { type: DataTypes.DATE, allowNull: true },
     },
     { tableName: 'game_sessions', timestamps: true, createdAt: 'created_at', updatedAt: false }
   );

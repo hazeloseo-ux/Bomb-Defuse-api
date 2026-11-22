@@ -20,11 +20,28 @@ const timeLimit = body('time_limit_seconds')
   .toInt();
 
 const status = body('status')
-  .exists().withMessage('status is required')
-  .bail()
+  .optional()
   .isIn(['IN_PROGRESS', 'CLOSED'])
   .withMessage('status must be IN_PROGRESS or CLOSED');
 
+// Only the next question is allowed, and the service checks that. Here: a whole number from 1.
+const position = body('current_position')
+  .optional()
+  .isInt({ min: 1, max: 2147483647 })
+  .withMessage('current_position must be a positive whole number')
+  .toInt();
+
+// A PATCH changes the status OR the question, never both and never nothing.
+const exactlyOne = body().custom((_, { req }) => {
+  const b = req.body;
+  const isObject = b && typeof b === 'object';
+  const hasStatus = isObject && b.status !== undefined;
+  const hasPosition = isObject && b.current_position !== undefined;
+  if (hasStatus === hasPosition) {
+    throw new Error('send either status or current_position, not both and not neither');
+  }
+  return true;
+});
 const nickname = body('nickname')
   .exists().withMessage('nickname is required')
   .bail()
@@ -35,7 +52,7 @@ const nickname = body('nickname')
   .withMessage('nickname must be 2 to 50 characters long');
 
 const createRules = [questionSetId, timeLimit];
-const statusRules = [codeParam, status];
+const statusRules = [codeParam, exactlyOne, status, position];
 const joinRules = [codeParam, nickname];
 
 module.exports = { codeParam, createRules, statusRules, joinRules };
