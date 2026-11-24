@@ -1,5 +1,5 @@
 // What a well-formed request looks like. Never asks the database.
-const { body, param } = require('express-validator');
+const { body, param, query } = require('express-validator');
 
 // Six digits, and the first digit is 1 to 9 (a code never starts with 0).
 const codeParam = param('code')
@@ -65,9 +65,17 @@ const answerChoice = body('choice_index')
   .isInt().withMessage('choice_index must be a whole number')
   .toInt();
 
+// ?limit= is how many players to show. Optional: the controller uses 10 when it is missing.
+const limitRule = query('limit')
+  .optional()
+  .isInt({ min: 1, max: 100 })
+  .withMessage('limit must be a whole number from 1 to 100')
+  .toInt();
+
 const createRules = [questionSetId, timeLimit];
 const statusRules = [codeParam, exactlyOne, status, position];
 const joinRules = [codeParam, nickname];
 const answerRules = [codeParam, answerQuestionId, answerChoice];
+const leaderboardRules = [codeParam, limitRule];
 
-module.exports = { codeParam, createRules, statusRules, joinRules, answerRules };
+module.exports = { codeParam, createRules, statusRules, joinRules, answerRules, leaderboardRules };

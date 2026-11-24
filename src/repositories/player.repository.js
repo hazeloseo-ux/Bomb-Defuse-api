@@ -31,9 +31,25 @@ function findAllBySession(sessionId) {
   });
 }
 
+// The best players of a game, highest score first. Ties keep the order they joined.
+function findTopBySession(sessionId, limit) {
+  return Player.findAll({
+    where: { session_id: sessionId },
+    order: [['score', 'DESC'], ['player_id', 'ASC']],
+    limit,
+  });
+}
+
 // Adds points in the database itself (score = score + n), so two answers never overwrite each other.
 function addScore(player, points, options = {}) {
   return player.increment('score', { by: points, ...options });
 }
 
-module.exports = { findSeat, findRunningSeatElsewhere, create, findAllBySession, addScore };
+module.exports = {
+  findSeat,
+  findRunningSeatElsewhere,
+  create,
+  findAllBySession,
+  findTopBySession,
+  addScore,
+};
