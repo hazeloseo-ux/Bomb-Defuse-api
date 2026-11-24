@@ -41,4 +41,22 @@ async function changeStatus(req, res) {
   res.status(200).json(toJson(session));
 }
 
-module.exports = { toJson, list, create, get, changeStatus };
+// What a player may see of a question. correct_index is never sent.
+function questionToJson(question, session) {
+  return {
+    id: question.question_id,
+    position: session.current_position,
+    question_type: question.question_type,
+    question_text: question.question_text,
+    choices: [question.choice_a, question.choice_b, question.choice_c, question.choice_d],
+    question_started_at: session.question_started_at,
+  };
+}
+
+async function currentQuestion(req, res) {
+  const { code } = matchedData(req);
+  const { session, question } = await gameSessionsService.currentQuestion(code);
+  res.status(200).json(questionToJson(question, session));
+}
+
+module.exports = { toJson, list, create, get, changeStatus, currentQuestion };

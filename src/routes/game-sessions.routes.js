@@ -22,5 +22,5 @@ router.patch(
 // Players are a part of a game, so their URLs sit under it.
 router.post('/:code/players', requireUser(), rules.joinRules, validate, playerController.join);
 router.get('/:code/players', requireUser(), rules.codeParam, validate, playerController.list);
-
+router.get('/:code/question', requireUser(), rules.codeParam, validate, sessionController.currentQuestion);
 module.exports = router;

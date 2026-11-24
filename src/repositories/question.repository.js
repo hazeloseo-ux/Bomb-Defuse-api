@@ -20,6 +20,16 @@ function findInSet(questionSetId, questionId, options = {}) {
   });
 }
 
+// The question at a position in a set (1 = the first one), in the same order as the list above.
+function findByPosition(questionSetId, position, options = {}) {
+  return Question.findOne({
+    where: { question_set_id: questionSetId },
+    order: [['question_id', 'ASC']],
+    offset: position - 1,
+    ...options,
+  });
+}
+
 function create(data, options = {}) {
   return Question.create(data, options);
 }
@@ -36,8 +46,19 @@ function remove(question, options = {}) {
 function countGamesUsingSet(questionSetId, options = {}) {
   return GameSession.count({ where: { question_set_id: questionSetId }, ...options });
 }
+
 // How many questions a set has (the last position of a game).
 function countBySet(questionSetId, options = {}) {
   return Question.count({ where: { question_set_id: questionSetId }, ...options });
 }
-module.exports = { findAndCountBySet, findInSet, create, update, remove, countGamesUsingSet, countBySet };
+
+module.exports = {
+  findAndCountBySet,
+  findInSet,
+  findByPosition,
+  create,
+  update,
+  remove,
+  countGamesUsingSet,
+  countBySet,
+};

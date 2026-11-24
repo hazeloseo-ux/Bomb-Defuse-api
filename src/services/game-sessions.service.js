@@ -100,5 +100,20 @@ async function moveToQuestion(session, position) {
     question_started_at: new Date(),
   });
 }
+// Rule: only a running game has a current question. The position is decided by the server.
+async function currentQuestion(code) {
+  const session = await findOrFail(code);
+  if (session.status !== 'IN_PROGRESS') {
+    throw conflict('SESSION_NOT_RUNNING', 'This game is not running, so it has no current question.');
+  }
+  const question = await questionRepository.findByPosition(
+    session.question_set_id,
+    session.current_position
+  );
+  if (!question) {
+    throw conflict('NO_CURRENT_QUESTION', `This game has no question at position ${session.current_position}.`);
+  }
+  return { session, question };
+}
 
-module.exports = { findOrFail, list, create, change };
+module.exports = { findOrFail, list, create, change, currentQuestion };
