@@ -42,6 +42,7 @@ const exactlyOne = body().custom((_, { req }) => {
   }
   return true;
 });
+
 const nickname = body('nickname')
   .exists().withMessage('nickname is required')
   .bail()
@@ -51,8 +52,22 @@ const nickname = body('nickname')
   .isLength({ min: 2, max: 50 })
   .withMessage('nickname must be 2 to 50 characters long');
 
+// Only the shape is checked here. Whether the choice is 0 to 3 is the service's job (it must come after the other checks).
+const answerQuestionId = body('question_id')
+  .exists().withMessage('question_id is required')
+  .bail()
+  .isInt({ min: 1, max: 2147483647 }).withMessage('question_id must be a positive whole number')
+  .toInt();
+
+const answerChoice = body('choice_index')
+  .exists().withMessage('choice_index is required')
+  .bail()
+  .isInt().withMessage('choice_index must be a whole number')
+  .toInt();
+
 const createRules = [questionSetId, timeLimit];
 const statusRules = [codeParam, exactlyOne, status, position];
 const joinRules = [codeParam, nickname];
+const answerRules = [codeParam, answerQuestionId, answerChoice];
 
-module.exports = { codeParam, createRules, statusRules, joinRules };
+module.exports = { codeParam, createRules, statusRules, joinRules, answerRules };

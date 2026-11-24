@@ -17,6 +17,7 @@ const QuestionSet = require('./question-set')(sequelize, DataTypes);
 const GameSession = require('./game-session')(sequelize, DataTypes);
 const Player = require('./player')(sequelize, DataTypes);
 const Question = require('./question')(sequelize, DataTypes);
+const Answer = require('./answer')(sequelize, DataTypes);
 
 // Associations: one line per ERD relationship, read in both directions.
 QuestionSet.hasMany(Question, { foreignKey: 'question_set_id', as: 'questions' });
@@ -36,4 +37,20 @@ Player.belongsTo(GameSession, { foreignKey: 'session_id' });
 User.hasMany(Player, { foreignKey: 'user_id' });
 Player.belongsTo(User, { foreignKey: 'user_id' });
 
-module.exports = { sequelize, Sequelize, DataTypes, User, QuestionSet, Question, GameSession, Player };
+Player.hasMany(Answer, { foreignKey: 'player_id' });
+Answer.belongsTo(Player, { foreignKey: 'player_id' });
+
+Question.hasMany(Answer, { foreignKey: 'question_id' });
+Answer.belongsTo(Question, { foreignKey: 'question_id' });
+
+module.exports = {
+  sequelize,
+  Sequelize,
+  DataTypes,
+  User,
+  QuestionSet,
+  Question,
+  GameSession,
+  Player,
+  Answer,
+};

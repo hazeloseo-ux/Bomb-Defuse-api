@@ -10,6 +10,11 @@ module.exports = {
     code: 'ALREADY_SEATED',
     message: 'This account already has a seat in this game.',
   },
+    uq_one_answer: {
+    status: 409,
+    code: 'ALREADY_ANSWERED',
+    message: 'You already answered this question.',
+  },
   game_sessions_join_code_key: {
     status: 409,
     code: 'CODE_UNAVAILABLE',

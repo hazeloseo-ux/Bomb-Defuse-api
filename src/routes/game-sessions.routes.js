@@ -5,6 +5,7 @@ const validate = require('../middlewares/validate');
 const rules = require('../validators/game-sessions.validator');
 const sessionController = require('../controllers/game-sessions.controller');
 const playerController = require('../controllers/player.controller');
+const answerController = require('../controllers/answer.controller');
 
 const router = Router();
 
@@ -23,4 +24,5 @@ router.patch(
 router.post('/:code/players', requireUser(), rules.joinRules, validate, playerController.join);
 router.get('/:code/players', requireUser(), rules.codeParam, validate, playerController.list);
 router.get('/:code/question', requireUser(), rules.codeParam, validate, sessionController.currentQuestion);
+router.post('/:code/answers', requireUser(), rules.answerRules, validate, answerController.submit);
 module.exports = router;
