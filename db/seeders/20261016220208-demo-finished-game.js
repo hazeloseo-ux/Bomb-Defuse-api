@@ -1,6 +1,7 @@
 'use strict';
 
-// "completed" in this game = the player reached 5 successful wire cuts (defuse_progress = 5)
+// "completed" in this game = the player answered every question of the game's question set.
+// The seed finishes in a way that matches: winners answered everything, Lito left early.
 module.exports = {
   async up(queryInterface) {
     const db = queryInterface.sequelize;
@@ -48,10 +49,12 @@ module.exports = {
         isTool ? tool++ : cut++;
         answers.push({ player_id: p.player_id, question_id: q.question_id, choice_index: q.correct_index, correct: true, points: 100 });
       }
-      // wrong cut answers add to the mistake counter and earn 0 points
+      // A player answers a question once (uq_one_answer), so a wrong cut answer can only go on a
+      // cut question that is not answered yet. The mistake counter on the player keeps the full number.
       const cuts = questions.filter((q) => q.question_type === 'CUT');
-      for (let m = 0; m < s.mistakes; m++) {
-        const q = cuts[m];
+      const notAnswered = cuts.slice(wanted);
+      for (let m = 0; m < s.mistakes && m < notAnswered.length; m++) {
+        const q = notAnswered[m];
         answers.push({ player_id: p.player_id, question_id: q.question_id, choice_index: (q.correct_index + 1) % 4, correct: false, points: 0 });
       }
       await queryInterface.bulkInsert('answers', answers);
