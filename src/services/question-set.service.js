@@ -1,15 +1,14 @@
 // The rules: missing is 404, only the owner may touch a set, the owner is the caller.
 const fs = require('fs/promises');
 const path = require('path');
+const questionSetRepository = require('../repositories/question-set.repository');
+const { notFound, forbidden, badRequest } = require('../errors/app-error');
 
 const COVERS_DIR = path.join(__dirname, '..', '..', 'uploads', 'covers');
 
-// Best effort: a leftover file must never break the request.
-function removeCover(filename) {
-  return fs.unlink(path.join(COVERS_DIR, filename)).catch(() => {});
-}
-const questionSetRepository = require('../repositories/question-set.repository');
-const { notFound, forbidden } = require('../errors/app-error');
+// Best effort: a file that is already gone is not an error.
+const removeCoverFile = (filename) =>
+  filename ? fs.unlink(path.join(COVERS_DIR, filename)).catch(() => {}) : Promise.resolve();
 
 async function findOrFail(id, options) {
   const questionSet = await questionSetRepository.findById(id, options);
@@ -52,19 +51,23 @@ async function remove(id, user) {
   assertOwner(questionSet, user);
   await questionSetRepository.remove(questionSet);
 }
-// The picture is already on disk when we get here (multer ran first).
-// If the caller is not the owner, or the set does not exist, delete it again.
+
+// multer already saved the file. If the rules say no, delete it so nothing is left behind.
 async function setCover(id, file, user) {
+  if (!file) {
+    throw badRequest('COVER_REQUIRED', 'Send a picture in the form-data field named "cover".');
+  }
   try {
     const questionSet = await findOrFail(id);
     assertOwner(questionSet, user);
     const oldFilename = questionSet.cover_filename;
     const updated = await questionSetRepository.update(questionSet, { cover_filename: file.filename });
-    if (oldFilename) await removeCover(oldFilename); // replaced, so the old picture goes
+    await removeCoverFile(oldFilename);
     return updated;
-  } catch (error) {
-    await removeCover(file.filename);
-    throw error;
+  } catch (err) {
+    await removeCoverFile(file.filename);
+    throw err;
   }
 }
+
 module.exports = { list, get, create, update, remove, setCover };

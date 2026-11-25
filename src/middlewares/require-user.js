@@ -1,3 +1,4 @@
+
 // Guards a route.
 //   requireUser()                 any known account
 //   requireUser('HOST', 'ADMIN')  only these roles
