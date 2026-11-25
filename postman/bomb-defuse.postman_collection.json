@@ -91,6 +91,34 @@
     {
       "key": "qbQuestionId",
       "value": ""
+    },
+    {
+      "key": "wgCode",
+      "value": ""
+    },
+    {
+      "key": "wgSince",
+      "value": ""
+    },
+    {
+      "key": "wgQuestions",
+      "value": ""
+    },
+    {
+      "key": "wgFirstQid",
+      "value": ""
+    },
+    {
+      "key": "wgQid",
+      "value": ""
+    },
+    {
+      "key": "wgWrongQid",
+      "value": ""
+    },
+    {
+      "key": "wgChoice",
+      "value": ""
     }
   ],
   "item": [
@@ -4088,6 +4116,2842 @@
               ],
               "path": [
                 "results"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Play a whole game",
+      "item": [
+        {
+          "name": "P-01 Host starts a new game from the demo set - 201",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"the server made a six digit code\", function () { pm.expect(body.code).to.match(/^[1-9][0-9]{5}$/); });",
+                  "pm.collectionVariables.set(\"wgCode\", body.code);",
+                  "pm.collectionVariables.set(\"wgSince\", new Date(Date.now() - 60000).toISOString());"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_set_id\": {{usedSetId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-02 Host reads the set with its questions - 200, one query",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"the set has questions\", function () { pm.expect(body.questions).to.be.an(\"array\").that.is.not.empty; });",
+                  "const map = {};",
+                  "body.questions.forEach(function (q) { map[q.id] = q.correct_index; });",
+                  "pm.collectionVariables.set(\"wgQuestions\", JSON.stringify(map));",
+                  "pm.collectionVariables.set(\"wgFirstQid\", String(body.questions[0].id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/question-sets/{{usedSetId}}?include=questions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "question-sets",
+                "{{usedSetId}}"
+              ],
+              "query": [
+                {
+                  "key": "include",
+                  "value": "questions"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "P-03 Rina joins - 201",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/players",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "players"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nickname\": \"Rina\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-04 Lito joins - 201",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{litoToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/players",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "players"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nickname\": \"Lito\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-05 Question before the game starts - 409 SESSION_NOT_RUNNING",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"error code is SESSION_NOT_RUNNING\", function () { pm.expect(pm.response.json().error.code).to.eql(\"SESSION_NOT_RUNNING\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/question",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "question"
+              ]
+            }
+          }
+        },
+        {
+          "name": "P-06 Answer before the game starts - 409 SESSION_NOT_RUNNING",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"error code is SESSION_NOT_RUNNING\", function () { pm.expect(pm.response.json().error.code).to.eql(\"SESSION_NOT_RUNNING\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgFirstQid}},\n  \"choice_index\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-07 Host starts the game - 200, question 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"running at question 1\", function () { pm.expect(body.status).to.eql(\"IN_PROGRESS\"); pm.expect(body.current_position).to.eql(1); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"IN_PROGRESS\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-08 A player who is not seated answers - 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{maraToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgFirstQid}},\n  \"choice_index\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q1a Rina reads question 1 - 200, never correct_index",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"it is question 1 with four choices\", function () { pm.expect(body.position).to.eql(1); pm.expect(body.choices).to.have.lengthOf(4); });",
+                  "pm.test(\"the answer is never shown\", function () { pm.expect(JSON.stringify(body)).to.not.include(\"correct_index\"); });",
+                  "pm.collectionVariables.set(\"wgQid\", String(body.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/question",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "question"
+              ]
+            }
+          }
+        },
+        {
+          "name": "P-Q1x Lito answers a question that is not the current one - 409",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"wgWrongQid\", String(Number(pm.collectionVariables.get(\"wgQid\")) + 100000));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"error code is NOT_CURRENT_QUESTION\", function () { pm.expect(pm.response.json().error.code).to.eql(\"NOT_CURRENT_QUESTION\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{litoToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgWrongQid}},\n  \"choice_index\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q1y Lito sends a choice that does not exist - 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"error code is INVALID_CHOICE\", function () { pm.expect(pm.response.json().error.code).to.eql(\"INVALID_CHOICE\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{litoToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": 9\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q1b Rina answers question 1 correctly - 201",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const map = JSON.parse(pm.collectionVariables.get(\"wgQuestions\"));",
+                  "const right = Number(map[pm.collectionVariables.get(\"wgQid\")]);",
+                  "pm.collectionVariables.set(\"wgChoice\", String(right));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"correct, with points and a score\", function () { pm.expect(body.correct).to.eql(true); pm.expect(body.points).to.be.at.least(100); pm.expect(body.score).to.be.at.least(body.points); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": {{wgChoice}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q1z Rina answers question 1 again - 409 ALREADY_ANSWERED",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const map = JSON.parse(pm.collectionVariables.get(\"wgQuestions\"));",
+                  "const right = Number(map[pm.collectionVariables.get(\"wgQid\")]);",
+                  "pm.collectionVariables.set(\"wgChoice\", String(right));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"error code is ALREADY_ANSWERED\", function () { pm.expect(pm.response.json().error.code).to.eql(\"ALREADY_ANSWERED\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": {{wgChoice}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q1c Lito answers question 1 wrongly - 201, 0 points",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const map = JSON.parse(pm.collectionVariables.get(\"wgQuestions\"));",
+                  "const right = Number(map[pm.collectionVariables.get(\"wgQid\")]);",
+                  "pm.collectionVariables.set(\"wgChoice\", String((right + 1) % 4));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"wrong answer, no points\", function () { pm.expect(body.correct).to.eql(false); pm.expect(body.points).to.eql(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{litoToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": {{wgChoice}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q1s Host skips a question - 409 NOT_NEXT_QUESTION",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"error code is NOT_NEXT_QUESTION\", function () { pm.expect(pm.response.json().error.code).to.eql(\"NOT_NEXT_QUESTION\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_position\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q1n Host moves to question 2 - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"now at question 2\", function () { pm.expect(pm.response.json().current_position).to.eql(2); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_position\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q2a Rina reads question 2 - 200, never correct_index",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"it is question 2 with four choices\", function () { pm.expect(body.position).to.eql(2); pm.expect(body.choices).to.have.lengthOf(4); });",
+                  "pm.test(\"the answer is never shown\", function () { pm.expect(JSON.stringify(body)).to.not.include(\"correct_index\"); });",
+                  "pm.collectionVariables.set(\"wgQid\", String(body.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/question",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "question"
+              ]
+            }
+          }
+        },
+        {
+          "name": "P-Q2b Rina answers question 2 correctly - 201",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const map = JSON.parse(pm.collectionVariables.get(\"wgQuestions\"));",
+                  "const right = Number(map[pm.collectionVariables.get(\"wgQid\")]);",
+                  "pm.collectionVariables.set(\"wgChoice\", String(right));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"correct, with points and a score\", function () { pm.expect(body.correct).to.eql(true); pm.expect(body.points).to.be.at.least(100); pm.expect(body.score).to.be.at.least(body.points); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": {{wgChoice}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q2c Lito answers question 2 wrongly - 201, 0 points",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const map = JSON.parse(pm.collectionVariables.get(\"wgQuestions\"));",
+                  "const right = Number(map[pm.collectionVariables.get(\"wgQid\")]);",
+                  "pm.collectionVariables.set(\"wgChoice\", String((right + 1) % 4));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"wrong answer, no points\", function () { pm.expect(body.correct).to.eql(false); pm.expect(body.points).to.eql(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{litoToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": {{wgChoice}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q2n Host moves to question 3 - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"now at question 3\", function () { pm.expect(pm.response.json().current_position).to.eql(3); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_position\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q3a Rina reads question 3 - 200, never correct_index",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"it is question 3 with four choices\", function () { pm.expect(body.position).to.eql(3); pm.expect(body.choices).to.have.lengthOf(4); });",
+                  "pm.test(\"the answer is never shown\", function () { pm.expect(JSON.stringify(body)).to.not.include(\"correct_index\"); });",
+                  "pm.collectionVariables.set(\"wgQid\", String(body.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/question",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "question"
+              ]
+            }
+          }
+        },
+        {
+          "name": "P-Q3b Rina answers question 3 correctly - 201",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const map = JSON.parse(pm.collectionVariables.get(\"wgQuestions\"));",
+                  "const right = Number(map[pm.collectionVariables.get(\"wgQid\")]);",
+                  "pm.collectionVariables.set(\"wgChoice\", String(right));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"correct, with points and a score\", function () { pm.expect(body.correct).to.eql(true); pm.expect(body.points).to.be.at.least(100); pm.expect(body.score).to.be.at.least(body.points); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": {{wgChoice}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q3c Lito answers question 3 wrongly - 201, 0 points",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const map = JSON.parse(pm.collectionVariables.get(\"wgQuestions\"));",
+                  "const right = Number(map[pm.collectionVariables.get(\"wgQid\")]);",
+                  "pm.collectionVariables.set(\"wgChoice\", String((right + 1) % 4));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"wrong answer, no points\", function () { pm.expect(body.correct).to.eql(false); pm.expect(body.points).to.eql(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{litoToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": {{wgChoice}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q3n Host moves to question 4 - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"now at question 4\", function () { pm.expect(pm.response.json().current_position).to.eql(4); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_position\": 4\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q4a Rina reads question 4 - 200, never correct_index",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"it is question 4 with four choices\", function () { pm.expect(body.position).to.eql(4); pm.expect(body.choices).to.have.lengthOf(4); });",
+                  "pm.test(\"the answer is never shown\", function () { pm.expect(JSON.stringify(body)).to.not.include(\"correct_index\"); });",
+                  "pm.collectionVariables.set(\"wgQid\", String(body.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/question",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "question"
+              ]
+            }
+          }
+        },
+        {
+          "name": "P-Q4b Rina answers question 4 correctly - 201",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const map = JSON.parse(pm.collectionVariables.get(\"wgQuestions\"));",
+                  "const right = Number(map[pm.collectionVariables.get(\"wgQid\")]);",
+                  "pm.collectionVariables.set(\"wgChoice\", String(right));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"correct, with points and a score\", function () { pm.expect(body.correct).to.eql(true); pm.expect(body.points).to.be.at.least(100); pm.expect(body.score).to.be.at.least(body.points); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": {{wgChoice}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q4c Lito answers question 4 wrongly - 201, 0 points",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const map = JSON.parse(pm.collectionVariables.get(\"wgQuestions\"));",
+                  "const right = Number(map[pm.collectionVariables.get(\"wgQid\")]);",
+                  "pm.collectionVariables.set(\"wgChoice\", String((right + 1) % 4));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"wrong answer, no points\", function () { pm.expect(body.correct).to.eql(false); pm.expect(body.points).to.eql(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{litoToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": {{wgChoice}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q4n Host moves to question 5 - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"now at question 5\", function () { pm.expect(pm.response.json().current_position).to.eql(5); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_position\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q5a Rina reads question 5 - 200, never correct_index",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"it is question 5 with four choices\", function () { pm.expect(body.position).to.eql(5); pm.expect(body.choices).to.have.lengthOf(4); });",
+                  "pm.test(\"the answer is never shown\", function () { pm.expect(JSON.stringify(body)).to.not.include(\"correct_index\"); });",
+                  "pm.collectionVariables.set(\"wgQid\", String(body.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/question",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "question"
+              ]
+            }
+          }
+        },
+        {
+          "name": "P-Q5b Rina answers question 5 correctly - 201",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const map = JSON.parse(pm.collectionVariables.get(\"wgQuestions\"));",
+                  "const right = Number(map[pm.collectionVariables.get(\"wgQid\")]);",
+                  "pm.collectionVariables.set(\"wgChoice\", String(right));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"correct, with points and a score\", function () { pm.expect(body.correct).to.eql(true); pm.expect(body.points).to.be.at.least(100); pm.expect(body.score).to.be.at.least(body.points); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": {{wgChoice}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q5c Lito answers question 5 wrongly - 201, 0 points",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const map = JSON.parse(pm.collectionVariables.get(\"wgQuestions\"));",
+                  "const right = Number(map[pm.collectionVariables.get(\"wgQid\")]);",
+                  "pm.collectionVariables.set(\"wgChoice\", String((right + 1) % 4));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"wrong answer, no points\", function () { pm.expect(body.correct).to.eql(false); pm.expect(body.points).to.eql(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{litoToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": {{wgChoice}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q5n Host moves to question 6 - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"now at question 6\", function () { pm.expect(pm.response.json().current_position).to.eql(6); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_position\": 6\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q6a Rina reads question 6 - 200, never correct_index",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"it is question 6 with four choices\", function () { pm.expect(body.position).to.eql(6); pm.expect(body.choices).to.have.lengthOf(4); });",
+                  "pm.test(\"the answer is never shown\", function () { pm.expect(JSON.stringify(body)).to.not.include(\"correct_index\"); });",
+                  "pm.collectionVariables.set(\"wgQid\", String(body.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/question",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "question"
+              ]
+            }
+          }
+        },
+        {
+          "name": "P-Q6b Rina answers question 6 correctly - 201",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const map = JSON.parse(pm.collectionVariables.get(\"wgQuestions\"));",
+                  "const right = Number(map[pm.collectionVariables.get(\"wgQid\")]);",
+                  "pm.collectionVariables.set(\"wgChoice\", String(right));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"correct, with points and a score\", function () { pm.expect(body.correct).to.eql(true); pm.expect(body.points).to.be.at.least(100); pm.expect(body.score).to.be.at.least(body.points); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": {{wgChoice}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q6c Lito answers question 6 wrongly - 201, 0 points",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const map = JSON.parse(pm.collectionVariables.get(\"wgQuestions\"));",
+                  "const right = Number(map[pm.collectionVariables.get(\"wgQid\")]);",
+                  "pm.collectionVariables.set(\"wgChoice\", String((right + 1) % 4));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"wrong answer, no points\", function () { pm.expect(body.correct).to.eql(false); pm.expect(body.points).to.eql(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{litoToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": {{wgChoice}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q6n Host moves to question 7 - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"now at question 7\", function () { pm.expect(pm.response.json().current_position).to.eql(7); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_position\": 7\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q7a Rina reads question 7 - 200, never correct_index",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"it is question 7 with four choices\", function () { pm.expect(body.position).to.eql(7); pm.expect(body.choices).to.have.lengthOf(4); });",
+                  "pm.test(\"the answer is never shown\", function () { pm.expect(JSON.stringify(body)).to.not.include(\"correct_index\"); });",
+                  "pm.collectionVariables.set(\"wgQid\", String(body.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/question",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "question"
+              ]
+            }
+          }
+        },
+        {
+          "name": "P-Q7b Rina answers question 7 correctly - 201",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const map = JSON.parse(pm.collectionVariables.get(\"wgQuestions\"));",
+                  "const right = Number(map[pm.collectionVariables.get(\"wgQid\")]);",
+                  "pm.collectionVariables.set(\"wgChoice\", String(right));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"correct, with points and a score\", function () { pm.expect(body.correct).to.eql(true); pm.expect(body.points).to.be.at.least(100); pm.expect(body.score).to.be.at.least(body.points); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": {{wgChoice}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q7c Lito answers question 7 wrongly - 201, 0 points",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const map = JSON.parse(pm.collectionVariables.get(\"wgQuestions\"));",
+                  "const right = Number(map[pm.collectionVariables.get(\"wgQid\")]);",
+                  "pm.collectionVariables.set(\"wgChoice\", String((right + 1) % 4));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"wrong answer, no points\", function () { pm.expect(body.correct).to.eql(false); pm.expect(body.points).to.eql(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{litoToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": {{wgChoice}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q7n Host moves to question 8 - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"now at question 8\", function () { pm.expect(pm.response.json().current_position).to.eql(8); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_position\": 8\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q8a Rina reads question 8 - 200, never correct_index",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"it is question 8 with four choices\", function () { pm.expect(body.position).to.eql(8); pm.expect(body.choices).to.have.lengthOf(4); });",
+                  "pm.test(\"the answer is never shown\", function () { pm.expect(JSON.stringify(body)).to.not.include(\"correct_index\"); });",
+                  "pm.collectionVariables.set(\"wgQid\", String(body.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/question",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "question"
+              ]
+            }
+          }
+        },
+        {
+          "name": "P-Q8b Rina answers question 8 correctly - 201",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const map = JSON.parse(pm.collectionVariables.get(\"wgQuestions\"));",
+                  "const right = Number(map[pm.collectionVariables.get(\"wgQid\")]);",
+                  "pm.collectionVariables.set(\"wgChoice\", String(right));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"correct, with points and a score\", function () { pm.expect(body.correct).to.eql(true); pm.expect(body.points).to.be.at.least(100); pm.expect(body.score).to.be.at.least(body.points); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": {{wgChoice}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q8c Lito answers question 8 wrongly - 201, 0 points",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const map = JSON.parse(pm.collectionVariables.get(\"wgQuestions\"));",
+                  "const right = Number(map[pm.collectionVariables.get(\"wgQid\")]);",
+                  "pm.collectionVariables.set(\"wgChoice\", String((right + 1) % 4));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"wrong answer, no points\", function () { pm.expect(body.correct).to.eql(false); pm.expect(body.points).to.eql(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{litoToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": {{wgChoice}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q8n Host moves to question 9 - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"now at question 9\", function () { pm.expect(pm.response.json().current_position).to.eql(9); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_position\": 9\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q9a Rina reads question 9 - 200, never correct_index",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"it is question 9 with four choices\", function () { pm.expect(body.position).to.eql(9); pm.expect(body.choices).to.have.lengthOf(4); });",
+                  "pm.test(\"the answer is never shown\", function () { pm.expect(JSON.stringify(body)).to.not.include(\"correct_index\"); });",
+                  "pm.collectionVariables.set(\"wgQid\", String(body.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/question",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "question"
+              ]
+            }
+          }
+        },
+        {
+          "name": "P-Q9b Rina answers question 9 correctly - 201",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const map = JSON.parse(pm.collectionVariables.get(\"wgQuestions\"));",
+                  "const right = Number(map[pm.collectionVariables.get(\"wgQid\")]);",
+                  "pm.collectionVariables.set(\"wgChoice\", String(right));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"correct, with points and a score\", function () { pm.expect(body.correct).to.eql(true); pm.expect(body.points).to.be.at.least(100); pm.expect(body.score).to.be.at.least(body.points); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": {{wgChoice}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q9c Lito answers question 9 wrongly - 201, 0 points",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const map = JSON.parse(pm.collectionVariables.get(\"wgQuestions\"));",
+                  "const right = Number(map[pm.collectionVariables.get(\"wgQid\")]);",
+                  "pm.collectionVariables.set(\"wgChoice\", String((right + 1) % 4));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"wrong answer, no points\", function () { pm.expect(body.correct).to.eql(false); pm.expect(body.points).to.eql(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{litoToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": {{wgChoice}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q9n Host moves to question 10 - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"now at question 10\", function () { pm.expect(pm.response.json().current_position).to.eql(10); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_position\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-Q10a Rina reads question 10 - 200, never correct_index",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"it is question 10 with four choices\", function () { pm.expect(body.position).to.eql(10); pm.expect(body.choices).to.have.lengthOf(4); });",
+                  "pm.test(\"the answer is never shown\", function () { pm.expect(JSON.stringify(body)).to.not.include(\"correct_index\"); });",
+                  "pm.collectionVariables.set(\"wgQid\", String(body.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/question",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "question"
+              ]
+            }
+          }
+        },
+        {
+          "name": "P-Q10b Rina answers question 10 correctly - 201",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const map = JSON.parse(pm.collectionVariables.get(\"wgQuestions\"));",
+                  "const right = Number(map[pm.collectionVariables.get(\"wgQid\")]);",
+                  "pm.collectionVariables.set(\"wgChoice\", String(right));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"correct, with points and a score\", function () { pm.expect(body.correct).to.eql(true); pm.expect(body.points).to.be.at.least(100); pm.expect(body.score).to.be.at.least(body.points); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": {{wgChoice}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-90 Host moves past the last question - 409 NO_MORE_QUESTIONS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"error code is NO_MORE_QUESTIONS\", function () { pm.expect(pm.response.json().error.code).to.eql(\"NO_MORE_QUESTIONS\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_position\": 11\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-91 Host closes the game - 200 CLOSED",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"closed\", function () { pm.expect(pm.response.json().status).to.eql(\"CLOSED\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CLOSED\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-92 Answer after the game closed - 409 SESSION_NOT_RUNNING",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"error code is SESSION_NOT_RUNNING\", function () { pm.expect(pm.response.json().error.code).to.eql(\"SESSION_NOT_RUNNING\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/answers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "answers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{wgQid}},\n  \"choice_index\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "P-93 Leaderboard - 200, Rina first, Lito second",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Rina is rank 1 and Lito is behind her\", function () { pm.expect(body[0].nickname).to.eql(\"Rina\"); pm.expect(body[0].rank).to.eql(1); pm.expect(body[1].nickname).to.eql(\"Lito\"); pm.expect(body[1].rank).to.eql(2); pm.expect(body[0].score).to.be.above(body[1].score); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/leaderboard?limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "leaderboard"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "P-94 Leaderboard with limit=1 - 200, one player",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"only one player\", function () { pm.expect(pm.response.json()).to.have.lengthOf(1); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/leaderboard?limit=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "leaderboard"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "P-95 Leaderboard with limit=0 - 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"error code is VALIDATION_FAILED\", function () { pm.expect(pm.response.json().error.code).to.eql(\"VALIDATION_FAILED\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game-sessions/{{wgCode}}/leaderboard?limit=0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "game-sessions",
+                "{{wgCode}}",
+                "leaderboard"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "P-96 /results?since= with the Hub key - 200, the game just played",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "const game = body.results.find(function (g) { return g.session_code === pm.collectionVariables.get(\"wgCode\"); });",
+                  "pm.test(\"the game that was just played is listed\", function () { pm.expect(game).to.be.an(\"object\"); });",
+                  "const rina = game.players.find(function (p) { return p.nickname === \"Rina\"; });",
+                  "const lito = game.players.find(function (p) { return p.nickname === \"Lito\"; });",
+                  "pm.test(\"Rina answered every question: completed, rank 1\", function () { pm.expect(rina.completed).to.eql(true); pm.expect(rina.rank).to.eql(1); });",
+                  "pm.test(\"Lito skipped the last question: not completed, no rank\", function () { pm.expect(lito.completed).to.eql(false); pm.expect(lito.rank).to.eql(null); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Hub-Key",
+                "value": "{{hubKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/results?since={{wgSince}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "results"
+              ],
+              "query": [
+                {
+                  "key": "since",
+                  "value": "{{wgSince}}"
+                }
               ]
             }
           }

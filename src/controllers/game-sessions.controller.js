@@ -12,6 +12,8 @@ function toJson(session) {
     time_limit_seconds: session.time_limit_seconds,
     started_at: session.started_at,
     ended_at: session.ended_at,
+    current_position: session.current_position,
+    question_started_at: session.question_started_at,
     created_at: session.created_at,
   };
 }
@@ -34,9 +36,27 @@ async function get(req, res) {
 }
 
 async function changeStatus(req, res) {
-  const { code, status } = matchedData(req);
-  const session = await gameSessionsService.changeStatus(code, status, req.user);
+  const { code, status, current_position } = matchedData(req);
+  const session = await gameSessionsService.change(code, { status, current_position }, req.user);
   res.status(200).json(toJson(session));
 }
 
-module.exports = { toJson, list, create, get, changeStatus };
+// What a player may see of a question. correct_index is never sent.
+function questionToJson(question, session) {
+  return {
+    id: question.question_id,
+    position: session.current_position,
+    question_type: question.question_type,
+    question_text: question.question_text,
+    choices: [question.choice_a, question.choice_b, question.choice_c, question.choice_d],
+    question_started_at: session.question_started_at,
+  };
+}
+
+async function currentQuestion(req, res) {
+  const { code } = matchedData(req);
+  const { session, question } = await gameSessionsService.currentQuestion(code);
+  res.status(200).json(questionToJson(question, session));
+}
+
+module.exports = { toJson, list, create, get, changeStatus, currentQuestion };

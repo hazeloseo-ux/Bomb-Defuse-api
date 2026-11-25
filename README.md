@@ -97,9 +97,25 @@ A game moves forward only: WAITING to IN_PROGRESS to CLOSED, or WAITING straight
 6. Is the game still WAITING? If not, 409 SESSION_NOT_JOINABLE, or SESSION_ENDED when it is CLOSED.
 7. Is the nickname free? The database decides, so two requests at the same instant cannot both win. If not, 409 NICKNAME_TAKEN.
 
+### Playing a game
+
+| Method | Path | Who may call it | Purpose | Success | Can fail with |
+|---|---|---|---|---|---|
+| GET | /game-sessions/{code}/question | Any known account | The current question and its choices, never the correct one | 200 | 400, 401, 404, 409 SESSION_NOT_RUNNING |
+| POST | /game-sessions/{code}/answers | A seated player | Answer the current question with `{ question_id, choice_index }` | 201 | 400 INVALID_CHOICE, 401, 403, 404, 409 |
+| GET | /game-sessions/{code}/leaderboard | Any known account | Top players, `?limit=10` (1 to 100). Equal scores share a rank | 200 | 400, 401, 404 |
+
+The host also sends `PATCH /game-sessions/{code}` with `{ "current_position": n }` to move to the next question
+(409 NOT_NEXT_QUESTION, or 409 NO_MORE_QUESTIONS after the last one). Starting a game sets question 1.
+
+Answering checks, in this order: the game is IN_PROGRESS (409), the caller has a seat (403), the question is the
+current one (409 NOT_CURRENT_QUESTION), and the choice is 0 to 3 (400). A second answer to the same question is
+409 ALREADY_ANSWERED. A correct answer is worth 100 points, plus up to 50 for speed. The answer and the new score
+are saved in one transaction.
+
 ### Testing
 
-The Postman collection is in `postman/bomb-defuse.postman_collection.json`. It has 78 requests with tests. Run the folder "Log in (run this folder first)" first: it logs in as each demo account and saves the tokens. Demo accounts (password in "Demo accounts" below): host `2099-0001`, second host `2099-0007`, players `2099-0002` and `2099-0005`, a player not seated anywhere `2099-0006`, admin `2099-0000`. Run `npm run db:reset` before running the collection.
+The Postman collection is in `postman/bomb-defuse.postman_collection.json`. It has 151 requests with tests.. Run the folder "Log in (run this folder first)" first: it logs in as each demo account and saves the tokens. Demo accounts (password in "Demo accounts" below): host `2099-0001`, second host `2099-0007`, players `2099-0002` and `2099-0005`, a player not seated anywhere `2099-0006`, admin `2099-0000`. Run `npm run db:reset` before running the collection.
 
 ## Demo accounts
 
@@ -118,10 +134,10 @@ All seeded accounts share one demo password: `oseo2525`
 
 ## What "completed" means in my game
 
-A player completed the game when they reached 5 successful wire cuts
-(players.defuse_progress = 5) before the timer ran out and before reaching
-3 mistakes (players.mistakes < 3). A player who reached 3 mistakes (the bomb
-exploded) or who left before cutting all 5 wires did not complete the game.
+A player completed the game when they answered every question of the game's
+question set (one answer per question, right or wrong). A player who left before
+the last question did not complete the game. `/results` uses this rule, so a
+completed player gets a rank and the others get `rank: null`.
 
 ## Tables
 
