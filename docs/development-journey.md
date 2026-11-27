@@ -29,6 +29,17 @@ One entry per milestone, written the week you did it. Newest at the bottom.
 - AI use: Same as M1. I used an AI assistant to ask for help, to get step-by-step guidance, and to have parts explained to me. I ran, tested and checked the code myself, and I am still learning how it works.
 
 ## M3 · Gameplay
+## M3 · Gameplay
+-- Dates worked: Nov 22 to Nov 24, 2026 · Time spent: about 6 hours (2 hours a day for 3 days)
+- Goal: Let a whole game be played: timed questions, answers checked by the server, scores and a leaderboard.
+- What I built: A question_started_at migration. PATCH /game-sessions/:code accepts current_position (only the next question). GET /game-sessions/:code/question never shows correct_index. POST /game-sessions/:code/answers checks the game is running, the caller is seated, the question is the current one and the choice is 0 to 3, then saves the answer and the score in one transaction. A pure pointsFor function in src/utils/points.js. GET /game-sessions/:code/leaderboard?limit=10 with shared ranks. A new "completed" rule for /results. A Postman folder "Play a whole game" (57 requests; the collection has 151 requests and 312 tests, 0 failed). I also added setCover to the question-set service, which M2 was missing.
+- Evidence: https://github.com/hazeloseo-ux/Bomb-Defuse-api/pull/6 · dfe693e · 4df8fb3 · 67d6ac7
+- Problem I hit: After I added the unique rule on answers, the seed failed and line D turned red on GitHub: Key (player_id, question_id)=(2, 2) already exists. My Postman run also stopped with ECONNRESET, because node --watch restarted the server in the middle of the run.
+- How I solved it: I ran npm run check on my computer and read the error. The demo seeder gave one player a right and a wrong answer to the same question, so I changed it to put wrong answers only on questions not yet answered. For the restarts I ran the Postman collection against npm start instead of npm run dev.
+- Decision I made and why: A player answers a question once, and the database decides it with the unique rule uq_one_answer, so two requests at the same instant cannot both win. It answers 409 ALREADY_ANSWERED. I also decided that "completed" means the player answered every question of the set, because nothing in my endpoints updates defuse_progress. The cost is that a player who answers everything wrongly still counts as completed.
+- Changes to my design set: The status is IN_PROGRESS, not RUNNING, and the paths are /game-sessions/:code/..., not /sessions/:code/..., because my Week 7 table already used them. New constraint uq_one_answer on answers. The answer body is { question_id, choice_index }. The README now defines "completed". I dropped no endpoint.
+- What I would explain to a classmate: The server decides time and score. The client sends only question_id and choice_index, because anything a client sends can be edited.
+- AI use: Same as M1 and M2. I used an AI assistant to ask for help, to get step-by-step guidance, and to have parts explained to me. I ran, tested and checked the code myself, and I am still learning how it works.
 
 ## M4 · Automated tests and server preparation
 

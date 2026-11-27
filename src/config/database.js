@@ -14,6 +14,8 @@ const settings = {
   // so running "db:seed:all" twice does not insert the data twice.
   seederStorage: 'sequelize',
   pool: { max: 10, min: 0, idle: 10000 },
+  // The hosted database needs an encrypted connection (DB_SSL=true).
+  ...(env.db.ssl ? { dialectOptions: { ssl: { require: true, rejectUnauthorized: false } } } : {}),
 };
 
 module.exports = {
