@@ -1,9 +1,9 @@
 # Render Blueprint: one free web service and one free PostgreSQL database.
 # In the Render dashboard: New > Blueprint > this repository. Render reads this file.
-# Change the two "name" values: they become part of your public address.
+# The two "name" values become part of the public address.
 services:
   - type: web
-    name: CHANGE-ME-yourgame-yourname
+    name: bomb-defuse-hazeloseo
     runtime: node
     plan: free
     region: singapore
@@ -15,8 +15,10 @@ services:
         value: production
       - key: DATABASE_URL
         fromDatabase:
-          name: CHANGE-ME-yourgame-yourname-db
+          name: bomb-defuse-hazeloseo-db
           property: connectionString
+      - key: DB_SSL
+        value: "true"
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_EXPIRES_IN
@@ -32,8 +34,8 @@ services:
         sync: false
 
 databases:
-  - name: CHANGE-ME-yourgame-yourname-db
+  - name: bomb-defuse-hazeloseo-db
     plan: free
     region: singapore
-    databaseName: CHANGE_ME_your_game_slug
+    databaseName: bomb_defuse
     ipAllowList: []          # only services inside Render may connect
